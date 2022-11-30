@@ -1,0 +1,147 @@
+// This is the main code
+
+
+//
+//  Unit_converterApp.swift
+//  Unit converter
+//
+//  Created by Mohit Reddy on 11/10/22.
+//
+
+import SwiftUI
+
+@main
+struct Unit_converterApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+
+
+
+// The ContentView() part of the program
+
+
+//
+//  ContentView.swift
+//  Unit converter
+//
+//  Created by Mohit Reddy on 11/10/22.
+//
+
+import SwiftUI
+
+struct ContentView: View {
+    @State private var input = 0.0
+    @State private var selectedUnits = 0
+    @State private var inputUnit: Dimension = UnitLength.meters
+    @State private var outputUnit: Dimension=UnitLength.kilometers
+    @FocusState private var inputIsFocused: Bool
+    
+    let coversions = ["Distance", "Mass", "Temperature", "Time","Volume","Area"]
+    
+    
+    let unitTypes=[ [UnitLength.feet, UnitLength.kilometers, UnitLength.meters, UnitLength.miles, UnitLength.yards],
+                    [UnitMass.grams, UnitMass.kilograms, UnitMass.ounces, UnitMass.pounds],
+                    [UnitTemperature.celsius, UnitTemperature.fahrenheit, UnitTemperature.kelvin],
+                    [UnitDuration.hours, UnitDuration.minutes, UnitDuration.seconds],[UnitVolume.liters,UnitVolume.gallons,UnitVolume.fluidOunces,UnitVolume.cups,UnitVolume.milliliters],[UnitArea.squareFeet,UnitArea.squareYards,UnitArea.acres,UnitArea.squareInches]
+    ]
+    
+    
+    
+    let formatter: MeasurementFormatter
+    var result: String{
+        let inputMeasurement = Measurement(value: input, unit:inputUnit)
+        let outputMeasurement=inputMeasurement.converted(to: outputUnit)
+        return formatter.string(from: outputMeasurement)
+    }
+    var body: some View {
+        
+            
+            
+            
+            NavigationView{
+                Form{
+                    Section{
+                            
+                            TextField("Enter", value: $input, format:.number).keyboardType(.decimalPad).focused($inputIsFocused)
+                        } header: {
+                            Spacer()
+                            Text("Enter number to convert")
+                                .font(.callout)
+                                .fontWeight(/*@START_MENU_TOKEN@*/.black/*@END_MENU_TOKEN@*/)
+                                .foregroundColor(Color.black)
+                                
+                                
+                        }
+                        
+                    Picker("Conversion", selection: $selectedUnits) {
+                        ForEach(0..<coversions.count, id: \.self){
+                            Text(coversions[$0])
+                        }
+                    }
+                    Picker("Convert from", selection: $inputUnit) {
+                        ForEach(unitTypes[selectedUnits], id: \.self) {
+                            Text(formatter.string(from: $0).capitalized)
+                            
+                        }
+                    }
+                    Picker("Convert to", selection: $outputUnit) {
+                        ForEach(unitTypes[selectedUnits], id: \.self) {
+                            Text(formatter.string(from: $0).capitalized)
+                            
+                        }
+                    }
+                    Section {
+                        Text(result)
+                            .multilineTextAlignment(.leading)
+                    } header:{
+                            
+                        Text("Result")
+                            .font(/*@START_MENU_TOKEN@*/.headline/*@END_MENU_TOKEN@*/)
+                            .fontWeight(.black)
+                            .foregroundColor(Color.red)
+                            
+                        
+                    }
+                }
+        
+                .navigationTitle("Unit Converter").toolbar { ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        inputIsFocused=false
+                    }
+                }
+                    
+                }
+                .onChange(of: selectedUnits){ newSelection in
+                    let units=unitTypes[newSelection]
+                    inputUnit=units[0]
+                    outputUnit=units[1]
+                
+                    
+                }
+        
+                
+            }
+            
+            
+        }
+        init(){
+            formatter=MeasurementFormatter()
+            formatter.unitOptions = .providedUnit
+            formatter.unitStyle = .long
+        }
+
+        
+    }
+    
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
